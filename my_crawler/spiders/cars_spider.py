@@ -51,12 +51,13 @@ class OffersSpider(scrapy.Spider):
         with open(filename, 'wb') as f:
             f.write(response.body)
         self.log('Saved file %s' % filename)
-        offers = {'dealers': []}
+        offers = json.load(open('offers.json'))
         offer_urls = response.css(
             'a.offer-item__photo-link::attr(href)').extract()
         car_names = response.css('a.offer-title__link::attr(title)').extract()
         dealer_names = response.css('div.dealer-title::text').extract()
         dealer_names = [name.strip() for name in dealer_names]
+
         # TODO collected_datetimes
         # TODO sold_datetimes
         prices = response.css('span.offer-price__number::text').extract()
