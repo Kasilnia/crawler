@@ -1,3 +1,4 @@
+import os.path
 import json
 import scrapy
 
@@ -51,7 +52,10 @@ class OffersSpider(scrapy.Spider):
         with open(filename, 'wb') as f:
             f.write(response.body)
         self.log('Saved file %s' % filename)
-        offers = json.load(open('offers.json'))
+        if os.path.isfile('offers.json'):
+            offers = json.load(open('offers.json'))
+        else:
+            offers = json.load(open('offers_empty_pattern.json'))
         offer_urls = response.css(
             'a.offer-item__photo-link::attr(href)').extract()
         car_names = response.css('a.offer-title__link::attr(title)').extract()
