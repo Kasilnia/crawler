@@ -1,7 +1,5 @@
 import scrapy
 
-DEALERS = []
-
 
 class CarsSpider(scrapy.Spider):
     name = 'cars'
@@ -25,6 +23,6 @@ class CarsSpider(scrapy.Spider):
         dealers = response.css(
             'a.offer-item__link-seller::attr(href)').extract()
         dealers = list(set(dealers))
-        for dealer in dealers:
-            if dealer not in DEALERS:
-                DEALERS.append(dealer)
+        with open('dealers.txt', 'a') as dealers_file:
+            for dealer in dealers:
+                dealers_file.write('{}\n'.format(dealer))
