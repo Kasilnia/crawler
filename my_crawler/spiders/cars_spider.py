@@ -1,3 +1,4 @@
+import json
 import scrapy
 
 
@@ -26,3 +27,54 @@ class CarsSpider(scrapy.Spider):
         with open('dealers.txt', 'a') as dealers_file:
             for dealer in dealers:
                 dealers_file.write('{}\n'.format(dealer))
+
+
+class OffersSpider(scrapy.Spider):
+    name = 'offers'
+
+    def start_requests(self):
+        urls = []
+        dealers = open('dealers.txt', 'r').readlines()
+        dealers = list(set(dealers))
+        dealers_list = []
+        for dealer in dealers:
+            dealer = dealer.rstrip()
+            dealers_list.append(dealer)
+        for dealer in dealers_list:
+            urls.append(dealer)
+        for url in urls:
+            yield scrapy.Request(url=url, callback=self.parse)
+
+    def parse(self, response):
+        page = response.url.split("/")[-2]
+        filename = 'offers-%s.html' % page
+        with open(filename, 'wb') as f:
+            f.write(response.body)
+        self.log('Saved file %s' % filename)
+        offers = {'dealers': []}
+        offer_urls = response.css(
+            'a.offer-item__photo-link::attr(href)').extract()
+        car_names = response.css('a.offer-title__link::attr(title)').extract()
+        dealer_names = response.css('div.dealer-title::text').extract()
+        dealer_names = [name.strip() for name in dealer_names]
+        # TODO collected_datetimes
+        # TODO sold_datetimes
+        prices = response.css('span.offer-price__number::text').extract()
+        prices = [price.strip() for price in prices]
+        prices = list(filter(None, prices))
+        offers_number = len(offer_urls)
+        # Add dealer entry to dealers list
+        offers['dealers'].append({
+            'dealer_name': dealer_names[0],
+            'offers': [],
+        })
+        # Add offers list to dealer entry
+        for i in range(offers_number):
+            offers['dealers'][-1]['offers'].append({
+                'offer_url': offer_urls[i],
+                'car_name': car_names[i],
+                'price': prices[i],
+            })
+        # Save data to json file
+        with open('offers.json', 'w') as offers_file:
+            json.dump(offers, offers_file)
