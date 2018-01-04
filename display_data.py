@@ -19,12 +19,12 @@ for dealer in data['dealers']:
     for i, offer in enumerate(dealer['offers']):
         if i == 0:
             offer_rows = '<tr><td>{dealer}</td>'.format(
-                dealer=dealer['dealer_name'])
+                dealer=dealer['dealer_name'].encode('utf-8'))
         else:
             offer_rows = '<tr><td></td>'
-        offer_rows += '<td>' + offer['offer_url'] + '</td>'
-        offer_rows += '<td>' + offer['car_name'] + '</td>'
-        offer_rows += '<td>' + offer['price'] + '</td>'
+        offer_rows += '<td>' + offer['offer_url'].encode('utf-8') + '</td>'
+        offer_rows += '<td>' + offer['car_name'].encode('utf-8') + '</td>'
+        offer_rows += '<td>' + offer['price'].encode('utf-8') + '</td>'
         content += '{offer}</tr>'.format(offer=offer_rows)
 
 
